@@ -8,9 +8,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
-const app_controller_1 = require("./app.controller");
-const users_module_1 = require("./api/users/users.module");
 const logger_middleware_1 = require("./common/middlewares/logger.middleware");
+const typeorm_1 = require("@nestjs/typeorm");
+const typeorm_config_1 = require("./common/config/typeorm.config");
+const auth_module_1 = require("./api/auth/auth.module");
 let AppModule = exports.AppModule = class AppModule {
     configure(consumer) {
         consumer.apply(logger_middleware_1.LoggerMiddleware).forRoutes('*');
@@ -18,8 +19,8 @@ let AppModule = exports.AppModule = class AppModule {
 };
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [users_module_1.UsersModule],
-        controllers: [app_controller_1.AppController],
+        imports: [typeorm_1.TypeOrmModule.forRoot(typeorm_config_1.typeORMConfig), auth_module_1.AuthModule],
+        controllers: [],
         providers: [],
     })
 ], AppModule);

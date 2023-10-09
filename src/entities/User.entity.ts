@@ -1,0 +1,78 @@
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { Friend } from './Friend.entity';
+import { RefreshToken } from './RefreshToken.entity';
+import { Task } from './Task.entity';
+import { Auth } from './Auth.entity';
+import { UserTask } from './UserTask.entity';
+
+@Entity('User', { schema: 'frendar_dev' })
+export class User {
+  @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
+  id: number;
+
+  @Column('int', { name: 'authId' })
+  authId: number;
+
+  @Column('varchar', { name: 'phoneNumber', nullable: true, length: 15 })
+  phoneNumber: string | null;
+
+  @Column('varchar', { name: 'nickname', nullable: true, length: 45 })
+  nickname: string | null;
+
+  @Column('varchar', { name: 'birthDay', nullable: true, length: 15 })
+  birthDay: string | null;
+
+  @Column('text', { name: 'profileURL', nullable: true })
+  profileUrl: string | null;
+
+  @Column('tinyint', { name: 'isNotificationEnabled', nullable: true })
+  isNotificationEnabled: boolean;
+
+  @Column('varchar', { name: 'themeColor', nullable: true, length: 45 })
+  themeColor: string;
+
+  @Column('varchar', { name: 'code', nullable: true, length: 45 })
+  code: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
+
+  @OneToMany(() => Friend, (friend) => friend.toUser)
+  friends: Friend[];
+
+  @OneToMany(() => Friend, (friend) => friend.fromUser)
+  friends2: Friend[];
+
+  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
+  refreshTokens: RefreshToken[];
+
+  @OneToMany(() => Task, (task) => task.user)
+  tasks: Task[];
+
+  @ManyToOne(() => Auth, (auth) => auth.users, {
+    onDelete: 'NO ACTION',
+    onUpdate: 'NO ACTION',
+  })
+  @JoinColumn([{ name: 'authId', referencedColumnName: 'id' }])
+  auth: Auth;
+
+  @OneToMany(() => UserTask, (userTask) => userTask.user)
+  userTasks: UserTask[];
+}
