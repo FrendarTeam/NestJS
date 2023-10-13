@@ -18,6 +18,9 @@ export class RefreshToken {
   @Column('varchar', { name: 'refreshToken', nullable: true, length: 255 })
   refreshToken: string;
 
+  @Column('varchar', { name: 'deviceInfo', nullable: true, length: 255 })
+  deviceInfo: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

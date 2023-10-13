@@ -27,22 +27,31 @@ export class User {
   @Column('varchar', { name: 'phoneNumber', nullable: true, length: 15 })
   phoneNumber: string | null;
 
-  @Column('varchar', { name: 'nickname', nullable: true, length: 45 })
-  nickname: string | null;
+  @Column('varchar', { name: 'nickname', nullable: false, length: 45 })
+  nickname: string;
 
-  @Column('varchar', { name: 'birthDay', nullable: true, length: 15 })
-  birthDay: string | null;
+  @Column('varchar', { name: 'birthday', nullable: true, length: 15 })
+  birthday: string | null;
 
-  @Column('text', { name: 'profileURL', nullable: true })
+  @Column('text', { name: 'profileUrl', nullable: true })
   profileUrl: string | null;
 
-  @Column('tinyint', { name: 'isNotificationEnabled', nullable: true })
+  @Column('tinyint', {
+    name: 'isNotificationEnabled',
+    default: false,
+    nullable: false,
+  })
   isNotificationEnabled: boolean;
 
-  @Column('varchar', { name: 'themeColor', nullable: true, length: 45 })
+  @Column('varchar', {
+    name: 'themeColor',
+    default: 'white',
+    length: 45,
+    nullable: false,
+  })
   themeColor: string;
 
-  @Column('varchar', { name: 'code', nullable: true, length: 45 })
+  @Column('varchar', { name: 'code', nullable: false, length: 45 })
   code: string;
 
   @CreateDateColumn()

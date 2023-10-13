@@ -11,20 +11,20 @@ const common_1 = require("@nestjs/common");
 let HttpExceptionFilter = exports.HttpExceptionFilter = class HttpExceptionFilter {
     catch(exception, host) {
         const ctx = host.switchToHttp();
-        const response = ctx.getResponse();
-        const request = ctx.getRequest();
-        const status = exception.getStatus();
-        const error = exception.getResponse();
-        response.status(status).json({
-            statusCode: status,
-            timestamp: new Date().toISOString(),
-            path: request.url,
-            status: 'error',
-            error,
-        });
+        const res = ctx.getResponse();
+        const req = ctx.getRequest();
+        const stack = exception.stack;
+        if (!(exception instanceof common_1.HttpException)) {
+            exception = new common_1.InternalServerErrorException();
+        }
+        const response = exception.getResponse();
+        response['status'] = 'error';
+        delete response['error'];
+        delete response['statusCode'];
+        res.status(exception.getStatus()).json(response);
     }
 };
 exports.HttpExceptionFilter = HttpExceptionFilter = __decorate([
-    (0, common_1.Catch)(common_1.HttpException)
+    (0, common_1.Catch)()
 ], HttpExceptionFilter);
 //# sourceMappingURL=http-exception.filter.js.map
