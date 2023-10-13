@@ -12,7 +12,6 @@ import { UserRepository } from '../user/repository/user.repository';
 import { RefreshTokenRepository } from './repository/refreshToken.repository';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
-import { UserInfoForKakaoLoginDto } from './dto/kakao-login-res.dto';
 
 @Injectable()
 export class AuthService {
@@ -24,12 +23,15 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async loginKakao(loginKakaoRequestDto: LoginKakaoRequestDto) {
+  async loginKakao(
+    deviceInfo: string,
+    loginKakaoRequestDto: LoginKakaoRequestDto,
+  ) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const { token, deviceInfo } = loginKakaoRequestDto;
+      const { token } = loginKakaoRequestDto;
 
       /**
        * 1. 카카오 API: 사용자 정보 가져오기
@@ -87,8 +89,7 @@ export class AuthService {
       }
 
       await queryRunner.commitTransaction();
-      const result = { userId, deviceInfo };
-      return result;
+      return userId;
     } catch (error: any) {
       await queryRunner.rollbackTransaction();
       if (axios.isAxiosError(error)) {
@@ -105,12 +106,11 @@ export class AuthService {
     }
   }
 
-  async makeTokens(userInfo: UserInfoForKakaoLoginDto) {
+  async makeTokens(userId: number, deviceInfo: string) {
     try {
       /**
        * 1. userId를 넣은 Access Token과 Refresh Token 발급
        */
-      const { userId, deviceInfo } = userInfo;
       const jwtPayload = { userId };
 
       const accessToken: string = await this.jwtService.signAsync(jwtPayload, {

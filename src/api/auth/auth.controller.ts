@@ -33,11 +33,18 @@ export class AuthController {
   })
   async loginKakao(
     @Body() loginKakaoRequestDto: LoginKakaoRequestDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<ResultWithoutDataDto> {
     try {
-      const userInfo = await this.authService.loginKakao(loginKakaoRequestDto);
-      const tokens = await this.authService.makeTokens(userInfo);
+      const userAgentString = req.get('User-Agent');
+      const deviceInfo = userAgentString?.match(/\(([^)]+)\)/)[1];
+
+      const userId = await this.authService.loginKakao(
+        deviceInfo,
+        loginKakaoRequestDto,
+      );
+      const tokens = await this.authService.makeTokens(userId, deviceInfo);
       this.authService.setCookie(res, tokens);
 
       const data = { message: successResponseMessage.KAKAO_LOGIN_SUCCESS };

@@ -13,11 +13,4 @@ export class LoginKakaoRequestDto {
   })
   @IsString()
   token: string;
-
-  @ApiProperty({
-    example: 'Macintosh; Intel Mac OS X 10_15_7',
-    description: '접속한 기기 정보',
-  })
-  @IsString()
-  deviceInfo: string;
 }
