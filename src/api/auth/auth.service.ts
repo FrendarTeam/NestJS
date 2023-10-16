@@ -165,4 +165,17 @@ export class AuthService {
       throw error;
     }
   }
+
+  async deleteRefreshToken(userId: number, deviceInfo: string) {
+    try {
+      await this.refreshTokenRepository.deleteOneByUserIdAndDeviceInfo(
+        userId,
+        deviceInfo,
+      );
+
+      return;
+    } catch (error: any) {
+      throw error;
+    }
+  }
 }

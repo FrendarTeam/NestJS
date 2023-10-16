@@ -14,9 +14,9 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
       UserRepository,
       RefreshTokenRepository,
     ]),
-    JwtModule.register({ secret: process.env.TOKEN_SECRET_KEY }),
+    JwtModule.register({ global: true, secret: process.env.TOKEN_SECRET_KEY }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtModule],
+  providers: [AuthService],
 })
 export class AuthModule {}

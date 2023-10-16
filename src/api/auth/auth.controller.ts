@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { LoginKakaoRequestDto } from './dto/kakao-login-req.dto';
 import { AuthService } from './auth.service';
@@ -7,6 +15,10 @@ import { successResponseMessage } from 'src/common/constants/responseMessage';
 import { ResultWithoutDataDto } from 'src/common/constants/response.dto';
 import { KakaoLoginResponseDto } from './dto/kakao-login-res.dto';
 import { InvalidTokenErrorDto } from './dto/error.dto';
+import { LogoutResponseDto } from './dto/logout-res.dto';
+import { JwtAuthAccessGuard } from './guard/jwt.auth.access.guard';
+import { GetUserId } from 'src/common/decorators/get.userId.decorator';
+import { GetDeviceInfo } from 'src/common/decorators/get.deviceInfo.decorator';
 
 @Controller('auth')
 @ApiTags('Auth API')
@@ -33,21 +45,50 @@ export class AuthController {
   })
   async loginKakao(
     @Body() loginKakaoRequestDto: LoginKakaoRequestDto,
-    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
+    @GetDeviceInfo() deviceInfo: string,
   ): Promise<ResultWithoutDataDto> {
     try {
-      const userAgentString = req.get('User-Agent');
-      const deviceInfo = userAgentString?.match(/\(([^)]+)\)/)[1];
-
       const userId = await this.authService.loginKakao(
         deviceInfo,
         loginKakaoRequestDto,
       );
+
       const tokens = await this.authService.makeTokens(userId, deviceInfo);
+
       this.authService.setCookie(res, tokens);
 
       const data = { message: successResponseMessage.KAKAO_LOGIN_SUCCESS };
+      return data;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  @Post('/logout')
+  @UseGuards(JwtAuthAccessGuard)
+  @ApiOperation({
+    summary: '로그아웃 API',
+    description: `유저의 accessToken과 refreshToken을 clearCookie 한다.<br> 
+    refreshToken 테이블에서 동일 deviceInfo 데이터는 삭제한다.`,
+  })
+  @ApiResponse({
+    status: 201,
+    description: '로그아웃 성공',
+    type: LogoutResponseDto,
+  })
+  async logout(
+    @Res({ passthrough: true }) res: Response,
+    @GetUserId() userId: number,
+    @GetDeviceInfo() deviceInfo: string,
+  ): Promise<ResultWithoutDataDto> {
+    try {
+      await this.authService.deleteRefreshToken(userId, deviceInfo);
+
+      res.clearCookie('AccessToken');
+      res.clearCookie('RefreshToken');
+
+      const data = { message: successResponseMessage.LOGOUT_SUCCESS };
       return data;
     } catch (error: any) {
       throw error;
