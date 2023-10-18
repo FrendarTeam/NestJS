@@ -16,7 +16,7 @@ import { ResultWithoutDataDto } from 'src/common/constants/response.dto';
 import { KakaoLoginResponseDto } from './dto/kakao-login-res.dto';
 import { InvalidTokenErrorDto } from './dto/error.dto';
 import { LogoutResponseDto } from './dto/logout-res.dto';
-import { JwtAuthAccessGuard } from './guard/jwt.auth.access.guard';
+import { JwtAuthGuard } from './guard/jwt.auth.guard';
 import { GetUserId } from 'src/common/decorators/get.userId.decorator';
 import { GetDeviceInfo } from 'src/common/decorators/get.deviceInfo.decorator';
 
@@ -66,7 +66,7 @@ export class AuthController {
   }
 
   @Post('/logout')
-  @UseGuards(JwtAuthAccessGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: '로그아웃 API',
     description: `유저의 accessToken과 refreshToken을 clearCookie 한다.<br> 

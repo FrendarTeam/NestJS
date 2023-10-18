@@ -30,6 +30,18 @@ export class RefreshTokenRepository extends Repository<RefreshToken> {
     return result;
   }
 
+  async findOneByUserIdAndDeviceInfoAndRefreshToken(
+    userId: number,
+    deviceInfo: string,
+    refreshToken: string,
+  ): Promise<RefreshToken> {
+    const result = await this.findOne({
+      where: { userId, deviceInfo, refreshToken },
+    });
+
+    return result;
+  }
+
   async deleteOneByUserIdAndDeviceInfo(
     userId: number,
     deviceInfo: string,

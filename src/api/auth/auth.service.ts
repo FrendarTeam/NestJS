@@ -137,7 +137,7 @@ export class AuthService {
 
   setCookie(
     res: Response,
-    tokens: { accessToken: string; refreshToken: string },
+    tokens: { accessToken: string; refreshToken?: string },
   ) {
     try {
       const { accessToken, refreshToken } = tokens;
