@@ -5,7 +5,7 @@ import { AuthRepository } from './repository/auth.repository';
 import { TypeOrmExModule } from 'src/common/decorators/typeorm_ex.module';
 import { UserRepository } from '../user/repository/user.repository';
 import { RefreshTokenRepository } from './repository/refreshToken.repository';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [

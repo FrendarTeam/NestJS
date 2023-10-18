@@ -36,7 +36,7 @@ export class User {
   @Column('text', { name: 'profileUrl', nullable: true })
   profileUrl: string | null;
 
-  @Column('tinyint', {
+  @Column('boolean', {
     name: 'isNotificationEnabled',
     default: false,
     nullable: false,
