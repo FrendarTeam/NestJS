@@ -1,15 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/exceptions/http-exception.filter';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
+import { LoggerAndResponseInterceptor } from './common/interceptors/loggerAndResponse.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = process.env.PORT || 5000;
 
-  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalInterceptors(new LoggerAndResponseInterceptor());
 
   const config = new DocumentBuilder()
     .setTitle('✨ Frendar ✨')
