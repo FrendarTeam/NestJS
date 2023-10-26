@@ -25,8 +25,23 @@ export class UserRepository extends Repository<User> {
   }
 
   async getUser(userId: number): Promise<User> {
-    return this.findOne({
+    return await this.findOne({
       where: { id: userId },
     });
+  }
+
+  async getUserNotification(userId: number): Promise<boolean> {
+    const userData = await this.findOne({
+      select: { isNotificationEnabled: true },
+      where: { id: userId },
+    });
+
+    return userData.isNotificationEnabled;
+  }
+
+  async updateUserNotification(userId: number, status: boolean): Promise<void> {
+    await this.update({ id: userId }, { isNotificationEnabled: !status });
+
+    return;
   }
 }

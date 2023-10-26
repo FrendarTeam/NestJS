@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Put, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { GetUserId } from 'src/common/decorators/get.userId.decorator';
@@ -8,6 +8,8 @@ import {
   GetUserInfoResponseDto,
   GetUserInfoResultDto,
 } from './dto/get-user-res.dto';
+import { UserNotificationToggleResponseDto } from './dto/notification-res.dto';
+import { ResultWithoutDataDto } from 'src/common/constants/response.dto';
 
 @Controller('user')
 @ApiTags('User API')
@@ -33,6 +35,33 @@ export class UserController {
       const data = {
         user,
         message: successResponseMessage.GET_USER_INFO_SUCCESS,
+      };
+      return data;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  @Put('/notification')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '알림 설정 토글 API',
+    description: `유저의 알림 설정 토글을 switch 한다.`,
+  })
+  @ApiResponse({
+    status: 200,
+    description: '알림 허용 || 알림 거부',
+    type: UserNotificationToggleResponseDto,
+  })
+  async notificationToggle(
+    @GetUserId() userId: number,
+  ): Promise<ResultWithoutDataDto> {
+    try {
+      const toggleStatus = await this.userService.notificationToggle(userId);
+      const data = {
+        message: toggleStatus
+          ? successResponseMessage.NOTIFICATION_TOGGLE_ON_SUCCESS
+          : successResponseMessage.NOTIFICATION_TOGGLE_OFF_SUCCESS,
       };
       return data;
     } catch (error: any) {

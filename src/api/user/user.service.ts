@@ -23,4 +23,16 @@ export class UserService {
       throw error;
     }
   }
+
+  async notificationToggle(userId: number) {
+    try {
+      const status = await this.userRepository.getUserNotification(userId);
+
+      await this.userRepository.updateUserNotification(userId, status);
+
+      return !status;
+    } catch (error: any) {
+      throw error;
+    }
+  }
 }
