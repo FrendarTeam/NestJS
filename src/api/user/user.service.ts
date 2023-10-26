@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from './repository/user.repository';
+import { UpdateUserThemeRequestDto } from './dto/theme-req.dto';
 
 @Injectable()
 export class UserService {
@@ -31,6 +32,21 @@ export class UserService {
       await this.userRepository.updateUserNotification(userId, status);
 
       return !status;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  async updateUserTheme(
+    userId: number,
+    updateUserThemeRequestDto: UpdateUserThemeRequestDto,
+  ) {
+    try {
+      const { themeColor } = updateUserThemeRequestDto;
+
+      await this.userRepository.updateUserTheme(userId, themeColor);
+
+      return;
     } catch (error: any) {
       throw error;
     }

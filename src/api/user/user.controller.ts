@@ -1,4 +1,4 @@
-import { Controller, Get, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { GetUserId } from 'src/common/decorators/get.userId.decorator';
@@ -10,6 +10,8 @@ import {
 } from './dto/get-user-res.dto';
 import { UserNotificationToggleResponseDto } from './dto/notification-res.dto';
 import { ResultWithoutDataDto } from 'src/common/constants/response.dto';
+import { UpdateUserThemeResponseDto } from './dto/theme-res.dto';
+import { UpdateUserThemeRequestDto } from './dto/theme-req.dto';
 
 @Controller('user')
 @ApiTags('User API')
@@ -62,6 +64,32 @@ export class UserController {
         message: toggleStatus
           ? successResponseMessage.NOTIFICATION_TOGGLE_ON_SUCCESS
           : successResponseMessage.NOTIFICATION_TOGGLE_OFF_SUCCESS,
+      };
+      return data;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  @Put('/theme')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '메인 테마 변경 API',
+    description: `유저의 메인 테마 색상을 변경한다. (white 또는 black) default는 white.`,
+  })
+  @ApiResponse({
+    status: 200,
+    description: '메인 테마 변경 성공',
+    type: UpdateUserThemeResponseDto,
+  })
+  async updateUserTheme(
+    @GetUserId() userId: number,
+    @Body() updateUserThemeRequestDto: UpdateUserThemeRequestDto,
+  ): Promise<ResultWithoutDataDto> {
+    try {
+      await this.userService.updateUserTheme(userId, updateUserThemeRequestDto);
+      const data = {
+        message: successResponseMessage.UPDATE_USER_THEME_SUCCESS,
       };
       return data;
     } catch (error: any) {

@@ -1,6 +1,7 @@
 import { CustomRepository } from 'src/common/decorators/typeorm_ex.decorator';
 import { User } from 'src/entities/User.entity';
 import { Repository } from 'typeorm';
+import { UserThemeTypeValues } from '../type/theme.type';
 
 @CustomRepository(User)
 export class UserRepository extends Repository<User> {
@@ -41,6 +42,15 @@ export class UserRepository extends Repository<User> {
 
   async updateUserNotification(userId: number, status: boolean): Promise<void> {
     await this.update({ id: userId }, { isNotificationEnabled: !status });
+
+    return;
+  }
+
+  async updateUserTheme(
+    userId: number,
+    themeColor: UserThemeTypeValues,
+  ): Promise<void> {
+    await this.update({ id: userId }, { themeColor });
 
     return;
   }
