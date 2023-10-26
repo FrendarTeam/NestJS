@@ -23,13 +23,13 @@ export class JwtAuthGuard implements CanActivate {
     const accessToken = request.cookies.AccessToken;
     const refreshToken = request.cookies.RefreshToken;
 
-    if (!accessToken && !refreshToken) {
-      throw new UnauthorizedException(
-        errorResponseMessage.NEED_TO_AUTHENTICATION,
-      );
-    }
-
     try {
+      if (!accessToken && !refreshToken) {
+        throw new UnauthorizedException(
+          errorResponseMessage.NEED_TO_AUTHENTICATION,
+        );
+      }
+
       if (accessToken) {
         // accessToken이 있는 경우 validate
         request.user = await this.jwtService.verifyAsync(accessToken, {
@@ -68,10 +68,22 @@ export class JwtAuthGuard implements CanActivate {
         request.user = userInfo;
       }
     } catch (error: any) {
-      console.log(error);
       if (error.name === 'JsonWebTokenError') {
-        throw new UnauthorizedException(errorResponseMessage.INVALID_TOKEN);
+        error.status = 401;
+        error.response = {
+          status: 'error',
+          message: errorResponseMessage.INVALID_TOKEN,
+        };
+
+        console.log(error);
+        throw error;
       } else {
+        error.response = {
+          status: 'error',
+          message: error.message,
+        };
+
+        console.log(error);
         throw error;
       }
     }
