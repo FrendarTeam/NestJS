@@ -9,6 +9,7 @@ export const successResponseMessage = {
    * User
    */
   GET_USER_INFO_SUCCESS: '유저 정보 조회 성공',
+  UPDATE_USER_INFO_SUCCESS: '유저 정보 수정 성공',
   NOTIFICATION_TOGGLE_ON_SUCCESS: '알림 허용',
   NOTIFICATION_TOGGLE_OFF_SUCCESS: '알림 거부',
   UPDATE_USER_THEME_SUCCESS: '메인 테마 변경 성공',

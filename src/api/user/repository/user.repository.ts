@@ -40,6 +40,17 @@ export class UserRepository extends Repository<User> {
     return userData.isNotificationEnabled;
   }
 
+  async updateUserInfo(
+    userId: number,
+    nickname: string,
+    birthday: string,
+    profileUrl: string,
+  ): Promise<void> {
+    await this.update({ id: userId }, { nickname, birthday, profileUrl });
+
+    return;
+  }
+
   async updateUserNotification(userId: number, status: boolean): Promise<void> {
     await this.update({ id: userId }, { isNotificationEnabled: !status });
 

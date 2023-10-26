@@ -12,6 +12,8 @@ import { UserNotificationToggleResponseDto } from './dto/notification-res.dto';
 import { ResultWithoutDataDto } from 'src/common/constants/response.dto';
 import { UpdateUserThemeResponseDto } from './dto/theme-res.dto';
 import { UpdateUserThemeRequestDto } from './dto/theme-req.dto';
+import { UpdateUserInfoResponseDto } from './dto/update-user-res.dto';
+import { UpdateUserInfoRequestDto } from './dto/update-user-req.dto';
 
 @Controller('user')
 @ApiTags('User API')
@@ -37,6 +39,32 @@ export class UserController {
       const data = {
         user,
         message: successResponseMessage.GET_USER_INFO_SUCCESS,
+      };
+      return data;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  @Put()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '유저 정보 수정 API',
+    description: `유저의 닉네임, 생일, 프로필 url을 받아서 정보를 수정한다.`,
+  })
+  @ApiResponse({
+    status: 200,
+    description: '유저 정보 수정 성공',
+    type: UpdateUserInfoResponseDto,
+  })
+  async updateUserInfo(
+    @GetUserId() userId: number,
+    @Body() updateUserInfoRequestDto: UpdateUserInfoRequestDto,
+  ): Promise<ResultWithoutDataDto> {
+    try {
+      await this.userService.updateUserInfo(userId, updateUserInfoRequestDto);
+      const data = {
+        message: successResponseMessage.UPDATE_USER_INFO_SUCCESS,
       };
       return data;
     } catch (error: any) {
