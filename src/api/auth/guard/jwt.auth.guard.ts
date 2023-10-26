@@ -50,6 +50,8 @@ export class JwtAuthGuard implements CanActivate {
           );
 
         if (!isExistedRefreshToken) {
+          response.clearCookie('RefreshToken');
+
           throw new UnauthorizedException(
             errorResponseMessage.NEED_TO_AUTHENTICATION,
           );
