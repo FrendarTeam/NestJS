@@ -146,7 +146,7 @@ export class AuthService {
         res.cookie('AccessToken', accessToken, {
           // 1시간
           maxAge: parseInt(process.env.TOKEN_ACCESS_EXPIRED_TIME),
-          httpOnly: true,
+          // httpOnly: true,
           sameSite: 'none',
           // secure: process.env.NODE_ENV !== 'local',
         });
@@ -156,7 +156,7 @@ export class AuthService {
         res.cookie('RefreshToken', refreshToken, {
           // 7일
           maxAge: parseInt(process.env.TOKEN_REFRESH_EXPIRED_TIME),
-          httpOnly: true,
+          // httpOnly: true,
           sameSite: 'none',
           // secure: process.env.NODE_ENV !== 'local',
         });
