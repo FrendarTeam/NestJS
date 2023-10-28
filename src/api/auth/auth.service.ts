@@ -147,8 +147,8 @@ export class AuthService {
           // 1시간
           maxAge: parseInt(process.env.TOKEN_ACCESS_EXPIRED_TIME),
           httpOnly: true,
-          sameSite: process.env.NODE_ENV === 'local' ? 'lax' : 'none',
-          secure: process.env.NODE_ENV !== 'local',
+          // sameSite: process.env.NODE_ENV === 'local' ? 'lax' : 'none',
+          // secure: process.env.NODE_ENV !== 'local',
         });
       }
 
@@ -157,8 +157,8 @@ export class AuthService {
           // 7일
           maxAge: parseInt(process.env.TOKEN_REFRESH_EXPIRED_TIME),
           httpOnly: true,
-          sameSite: process.env.NODE_ENV === 'local' ? 'lax' : 'none',
-          secure: process.env.NODE_ENV !== 'local',
+          // sameSite: process.env.NODE_ENV === 'local' ? 'lax' : 'none',
+          // secure: process.env.NODE_ENV !== 'local',
         });
       }
     } catch (error: any) {
