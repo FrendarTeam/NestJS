@@ -1,8 +1,22 @@
-import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Put,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { GetUserId } from 'src/common/decorators/get.userId.decorator';
-import { JwtAuthGuard } from '../auth/guard/jwt.auth.guard';
+import { JwtAuthAccessGuard } from '../auth/guard/jwt.auth.access.guard';
 import { successResponseMessage } from 'src/common/constants/responseMessage';
 import {
   GetUserInfoResponseDto,
@@ -14,6 +28,7 @@ import { UpdateUserThemeResponseDto } from './dto/theme-res.dto';
 import { UpdateUserThemeRequestDto } from './dto/theme-req.dto';
 import { UpdateUserInfoResponseDto } from './dto/update-user-res.dto';
 import { UpdateUserInfoRequestDto } from './dto/update-user-req.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('user')
 @ApiTags('User API')
@@ -21,7 +36,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthAccessGuard)
   @ApiOperation({
     summary: '유저 정보 조회 API',
     description: `accessToken에 담겨있는 userId를 통해 유저의 정보를 조회한다.`,
@@ -47,21 +62,47 @@ export class UserController {
   }
 
   @Put()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthAccessGuard)
+  @UseInterceptors(FileInterceptor('image'))
   @ApiOperation({
     summary: '유저 정보 수정 API',
     description: `유저의 닉네임, 생일, 프로필 url을 받아서 정보를 수정한다.`,
   })
+  @ApiConsumes('multipart/form-data')
   @ApiResponse({
     status: 200,
     description: '유저 정보 수정 성공',
     type: UpdateUserInfoResponseDto,
   })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'file',
+          format: 'binary',
+          description: 'pdf 파일을 전송한다',
+        },
+        nickname: {
+          type: 'string',
+          description: '유저의 닉네임',
+          example: 'sumin',
+        },
+        birthday: {
+          type: 'string',
+          description: '유저의 생일',
+          example: '1021',
+        },
+      },
+    },
+  })
   async updateUserInfo(
     @GetUserId() userId: number,
+    @UploadedFile() file: Express.Multer.File,
     @Body() updateUserInfoRequestDto: UpdateUserInfoRequestDto,
   ): Promise<ResultWithoutDataDto> {
     try {
+      console.log(file);
       await this.userService.updateUserInfo(userId, updateUserInfoRequestDto);
       const data = {
         message: successResponseMessage.UPDATE_USER_INFO_SUCCESS,
@@ -73,7 +114,7 @@ export class UserController {
   }
 
   @Put('/notification')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthAccessGuard)
   @ApiOperation({
     summary: '알림 설정 토글 API',
     description: `유저의 알림 설정 토글을 switch 한다.`,
@@ -100,7 +141,7 @@ export class UserController {
   }
 
   @Put('/theme')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthAccessGuard)
   @ApiOperation({
     summary: '메인 테마 변경 API',
     description: `유저의 메인 테마 색상을 변경한다. (white 또는 black) default는 white.`,
