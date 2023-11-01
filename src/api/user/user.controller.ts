@@ -98,11 +98,11 @@ export class UserController {
   })
   async updateUserInfo(
     @GetUserId() userId: number,
-    @UploadedFile() file: Express.Multer.File,
+    // @UploadedFile() file: Express.Multer.File,
     @Body() updateUserInfoRequestDto: UpdateUserInfoRequestDto,
   ): Promise<ResultWithoutDataDto> {
     try {
-      console.log(file);
+      // console.log(file);
       await this.userService.updateUserInfo(userId, updateUserInfoRequestDto);
       const data = {
         message: successResponseMessage.UPDATE_USER_INFO_SUCCESS,
