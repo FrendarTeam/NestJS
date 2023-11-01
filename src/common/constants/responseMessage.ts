@@ -4,6 +4,7 @@ export const successResponseMessage = {
    */
   KAKAO_LOGIN_SUCCESS: '카카오 로그인 성공',
   LOGOUT_SUCCESS: '로그아웃 성공',
+  REISSUE_ACCESS_TOKEN_SUCCESS: '액세스 토큰 재발행 성공',
 
   /**
    * User
@@ -20,5 +21,6 @@ export const errorResponseMessage = {
    * Auth
    */
   INVALID_TOKEN: '토큰이 유효하지 않습니다.',
+  EXPIRED_TOKEN: '토큰이 만료되었습니다.',
   NEED_TO_AUTHENTICATION: '로그인이 필요합니다',
 };

@@ -178,4 +178,18 @@ export class AuthService {
       throw error;
     }
   }
+
+  async reissueAccessToken(userId: number) {
+    try {
+      const jwtPayload = { userId };
+
+      const accessToken: string = await this.jwtService.signAsync(jwtPayload, {
+        expiresIn: parseInt(process.env.TOKEN_ACCESS_EXPIRED_TIME),
+      });
+
+      return { accessToken };
+    } catch (error: any) {
+      throw error;
+    }
+  }
 }

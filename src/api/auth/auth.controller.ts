@@ -13,12 +13,20 @@ import { AuthService } from './auth.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { successResponseMessage } from 'src/common/constants/responseMessage';
 import { ResultWithoutDataDto } from 'src/common/constants/response.dto';
-import { KakaoLoginResponseDto } from './dto/kakao-login-res.dto';
+import {
+  KakaoLoginResponseDto,
+  KakaoLoginResultDto,
+} from './dto/kakao-login-res.dto';
 import { InvalidTokenErrorDto } from './dto/error.dto';
 import { LogoutResponseDto } from './dto/logout-res.dto';
-import { JwtAuthGuard } from './guard/jwt.auth.guard';
 import { GetUserId } from 'src/common/decorators/get.userId.decorator';
 import { GetDeviceInfo } from 'src/common/decorators/get.deviceInfo.decorator';
+import { JwtAuthAccessGuard } from './guard/jwt.auth.access.guard';
+import { JwtAuthRefreshGuard } from './guard/jwt.auth.refresh.guard';
+import {
+  ReissueAccessTokenResponseDto,
+  ReissueAccessTokenResultDto,
+} from './dto/reissue-access-token-res.dto';
 
 @Controller('auth')
 @ApiTags('Auth API')
@@ -30,7 +38,7 @@ export class AuthController {
     summary: '카카오 로그인 API',
     description: `카카오 access token을 받아서 가입 여부를 조회한다.<br> 
     신규가입자의 경우 Auth와 User 테이블에 데이터를 저장한다. <br>
-    유저의 accessToken과 refreshToken을 발행하여 cookie에 저장한다. <br>
+    유저의 accessToken과 refreshToken을 발행하여 반환한다. <br>
     refreshToken 테이블에 데이터를 저장한다.`,
   })
   @ApiResponse({
@@ -47,7 +55,7 @@ export class AuthController {
     @Body() loginKakaoRequestDto: LoginKakaoRequestDto,
     @Res({ passthrough: true }) res: Response,
     @GetDeviceInfo() deviceInfo: string,
-  ): Promise<ResultWithoutDataDto> {
+  ): Promise<KakaoLoginResultDto> {
     try {
       const userId = await this.authService.loginKakao(
         deviceInfo,
@@ -56,9 +64,14 @@ export class AuthController {
 
       const tokens = await this.authService.makeTokens(userId, deviceInfo);
 
-      this.authService.setCookie(res, tokens);
+      if (process.env.NODE_ENV === 'local') {
+        this.authService.setCookie(res, tokens);
+      }
 
-      const data = { message: successResponseMessage.KAKAO_LOGIN_SUCCESS };
+      const data = {
+        tokens,
+        message: successResponseMessage.KAKAO_LOGIN_SUCCESS,
+      };
       return data;
     } catch (error: any) {
       throw error;
@@ -66,11 +79,10 @@ export class AuthController {
   }
 
   @Post('/logout')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthAccessGuard)
   @ApiOperation({
     summary: '로그아웃 API',
-    description: `유저의 accessToken과 refreshToken을 clearCookie 한다.<br> 
-    refreshToken 테이블에서 동일 deviceInfo 데이터는 삭제한다.`,
+    description: `refreshToken 테이블에서 동일 deviceInfo 데이터는 삭제한다.`,
   })
   @ApiResponse({
     status: 201,
@@ -85,10 +97,39 @@ export class AuthController {
     try {
       await this.authService.deleteRefreshToken(userId, deviceInfo);
 
-      res.clearCookie('AccessToken');
-      res.clearCookie('RefreshToken');
+      if (process.env.NODE_ENV === 'local') {
+        res.clearCookie('AccessToken');
+        res.clearCookie('RefreshToken');
+      }
 
       const data = { message: successResponseMessage.LOGOUT_SUCCESS };
+      return data;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  @Get('/token')
+  @UseGuards(JwtAuthRefreshGuard)
+  @ApiOperation({
+    summary: '액세스 토큰 재발행 API',
+    description: '유저의 refreshToken으로 accessToken을 발행한다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '액세스 토큰 재발행 성공',
+    type: ReissueAccessTokenResponseDto,
+  })
+  async reissueAccessToken(
+    @GetUserId() userId: number,
+  ): Promise<ReissueAccessTokenResultDto> {
+    try {
+      const token = await this.authService.reissueAccessToken(userId);
+
+      const data = {
+        ...token,
+        message: successResponseMessage.REISSUE_ACCESS_TOKEN_SUCCESS,
+      };
       return data;
     } catch (error: any) {
       throw error;

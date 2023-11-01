@@ -7,40 +7,30 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { errorResponseMessage } from 'src/common/constants/responseMessage';
 import { RefreshTokenRepository } from '../repository/refreshToken.repository';
-import { AuthService } from '../auth.service';
 
 @Injectable()
-export class JwtAuthGuard implements CanActivate {
+export class JwtAuthRefreshGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly authService: AuthService,
     private readonly refreshTokenRepository: RefreshTokenRepository,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const response = context.switchToHttp().getResponse();
-    const accessToken = request.cookies.AccessToken;
     const refreshToken = request.cookies.RefreshToken;
 
     try {
-      if (!accessToken && !refreshToken) {
+      if (!refreshToken) {
         throw new UnauthorizedException(
           errorResponseMessage.NEED_TO_AUTHENTICATION,
         );
-      }
-
-      if (accessToken) {
-        // accessToken이 있는 경우 validate
-        request.user = await this.jwtService.verifyAsync(accessToken, {
-          secret: process.env.TOKEN_SECRET_KEY,
-        });
       } else {
-        // accessToken이 없는 경우 refreshToken validate 후 accessToken 재발급
+        // RefreshToken이 있는 경우 validate
         const userInfo = await this.jwtService.verifyAsync(refreshToken, {
           secret: process.env.TOKEN_SECRET_KEY,
         });
 
+        // refreshToken 테이블의 deviceInfo, refreshToken 데이터가 일치하는지 조회
         const deviceInfo = request.get('User-Agent')?.match(/\(([^)]+)\)/)[1];
         const isExistedRefreshToken =
           await this.refreshTokenRepository.findOneByUserIdAndDeviceInfoAndRefreshToken(
@@ -50,24 +40,13 @@ export class JwtAuthGuard implements CanActivate {
           );
 
         if (!isExistedRefreshToken) {
-          response.clearCookie('RefreshToken');
-
           throw new UnauthorizedException(
             errorResponseMessage.NEED_TO_AUTHENTICATION,
           );
         }
 
-        const jwtPayload = { userId: userInfo.userId };
-        const accessToken: string = await this.jwtService.signAsync(
-          jwtPayload,
-          {
-            expiresIn: parseInt(process.env.TOKEN_ACCESS_EXPIRED_TIME),
-          },
-        );
-        const tokens = { accessToken, refreshToken: null };
-        this.authService.setCookie(response, tokens);
-
         request.user = userInfo;
+        return request.user;
       }
     } catch (error: any) {
       if (error.name === 'JsonWebTokenError') {
@@ -75,6 +54,15 @@ export class JwtAuthGuard implements CanActivate {
         error.response = {
           status: 'error',
           message: errorResponseMessage.INVALID_TOKEN,
+        };
+
+        console.log(error);
+        throw error;
+      } else if (error.name === 'TokenExpiredError') {
+        error.status = 410;
+        error.response = {
+          status: 'error',
+          message: errorResponseMessage.EXPIRED_TOKEN,
         };
 
         console.log(error);
@@ -89,6 +77,5 @@ export class JwtAuthGuard implements CanActivate {
         throw error;
       }
     }
-    return request.user;
   }
 }
