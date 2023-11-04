@@ -61,12 +61,8 @@ export class AuthService {
         const authId = newAuth.id;
         const kakaoData = userInfo.data.kakao_account;
         const nickname = kakaoData.profile.nickname;
-        const profileURL = kakaoData.profile_image_needs_agreement
-          ? kakaoData.profile_image_url
-          : null;
-        const birthday = kakaoData.birthday_needs_agreement
-          ? kakaoData.birthday
-          : null;
+        const profileURL = kakaoData.profile.profile_image_url;
+        const birthday = kakaoData.has_birthday ? kakaoData.birthday : null;
         const code = Math.random().toString(36).slice(-5) + authId.toString();
 
         const newUser = await queryRunner.manager

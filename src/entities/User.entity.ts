@@ -3,10 +3,9 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  Index,
   JoinColumn,
-  ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -75,7 +74,7 @@ export class User {
   @OneToMany(() => Task, (task) => task.user)
   tasks: Task[];
 
-  @ManyToOne(() => Auth, (auth) => auth.users, {
+  @OneToOne(() => Auth, (auth) => auth.user, {
     onDelete: 'NO ACTION',
     onUpdate: 'NO ACTION',
   })

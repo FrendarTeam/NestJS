@@ -3,7 +3,6 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -27,5 +26,5 @@ export class Auth {
   deletedAt: Date;
 
   @OneToOne(() => User, (user) => user.auth)
-  users: User;
+  user: User;
 }

@@ -17,12 +17,12 @@ export class AuthRepository extends Repository<Auth> {
 
   async findUserIdBySnsId(snsId: string): Promise<number> {
     const auth = await this.findOne({
-      select: { users: { id: true } },
+      select: { user: { id: true } },
       where: { snsId },
-      relations: { users: true },
+      relations: { user: true },
     });
 
-    const result = auth ? auth.users.id : null;
+    const result = auth ? auth.user.id : null;
     return result;
   }
 }
