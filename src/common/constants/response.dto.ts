@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { errorResponseMessage } from './responseMessage';
 
 export class ErrorDto {
   @ApiProperty({ example: 'error', description: '상태' })
@@ -18,5 +19,10 @@ export class ResponseDto {
 
 export class ResultWithoutDataDto {
   @ApiProperty({ example: '카카오 로그인 성공', description: '메세지' })
+  message: string;
+}
+
+export class NullValueErrorDto extends ErrorDto {
+  @ApiProperty({ example: errorResponseMessage.NULL_VALUE })
   message: string;
 }

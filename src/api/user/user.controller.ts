@@ -23,12 +23,20 @@ import {
   GetUserInfoResultDto,
 } from './dto/get-user-res.dto';
 import { UserNotificationToggleResponseDto } from './dto/notification-res.dto';
-import { ResultWithoutDataDto } from 'src/common/constants/response.dto';
+import {
+  NullValueErrorDto,
+  ResultWithoutDataDto,
+} from 'src/common/constants/response.dto';
 import { UpdateUserThemeResponseDto } from './dto/theme-res.dto';
 import { UpdateUserThemeRequestDto } from './dto/theme-req.dto';
-import { UpdateUserInfoResponseDto } from './dto/update-user-res.dto';
+import {
+  UpdateUserInfoResponseDto,
+  UpdateUserInfoResultDto,
+} from './dto/update-user-res.dto';
 import { UpdateUserInfoRequestDto } from './dto/update-user-req.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { S3Service } from './s3/s3.service';
+import { multerOptions } from './s3/multer.option';
 
 @Controller('user')
 @ApiTags('User API')
@@ -63,10 +71,12 @@ export class UserController {
 
   @Put()
   @UseGuards(JwtAuthAccessGuard)
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(FileInterceptor('image', multerOptions))
   @ApiOperation({
     summary: '유저 정보 수정 API',
-    description: `유저의 닉네임, 생일, 프로필 url을 받아서 정보를 수정한다.`,
+    description: `유저의 닉네임, 생일, image 파일을 받아서 정보를 수정한다.
+    <br>image 파일은 필수값이 아님. 프로필 사진을 변경할 때만 form-data에 담아서 전송.
+    <br>닉네임과 생일은 필수값. 유저가 변경하지 않더라도 이전의 정보를 담아서 전송.`,
   })
   @ApiConsumes('multipart/form-data')
   @ApiResponse({
@@ -74,14 +84,19 @@ export class UserController {
     description: '유저 정보 수정 성공',
     type: UpdateUserInfoResponseDto,
   })
+  @ApiResponse({
+    status: 400,
+    description: 'Request Body에 필요한 값이 없습니다.',
+    type: NullValueErrorDto,
+  })
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
-        file: {
-          type: 'file',
+        image: {
+          type: 'string',
           format: 'binary',
-          description: 'pdf 파일을 전송한다',
+          description: '이미지 파일을 전송한다',
         },
         nickname: {
           type: 'string',
@@ -98,13 +113,17 @@ export class UserController {
   })
   async updateUserInfo(
     @GetUserId() userId: number,
-    // @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() image: Express.Multer.File,
     @Body() updateUserInfoRequestDto: UpdateUserInfoRequestDto,
-  ): Promise<ResultWithoutDataDto> {
+  ): Promise<UpdateUserInfoResultDto> {
     try {
-      // console.log(file);
-      await this.userService.updateUserInfo(userId, updateUserInfoRequestDto);
+      const user = await this.userService.updateUserInfo(
+        userId,
+        image,
+        updateUserInfoRequestDto,
+      );
       const data = {
+        user,
         message: successResponseMessage.UPDATE_USER_INFO_SUCCESS,
       };
       return data;

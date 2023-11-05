@@ -31,9 +31,18 @@ export class UserRepository extends Repository<User> {
     });
   }
 
+  async getUserProfileUrl(userId: number): Promise<string | null> {
+    const userData = await this.findOne({
+      select: { id: true, profileUrl: true },
+      where: { id: userId },
+    });
+
+    return userData.profileUrl;
+  }
+
   async getUserNotification(userId: number): Promise<boolean> {
     const userData = await this.findOne({
-      select: { isNotificationEnabled: true },
+      select: { id: true, isNotificationEnabled: true },
       where: { id: userId },
     });
 
@@ -46,7 +55,11 @@ export class UserRepository extends Repository<User> {
     birthday: string,
     profileUrl: string,
   ): Promise<void> {
-    await this.update({ id: userId }, { nickname, birthday, profileUrl });
+    if (profileUrl) {
+      await this.update({ id: userId }, { nickname, birthday, profileUrl });
+    } else {
+      await this.update({ id: userId }, { nickname, birthday });
+    }
 
     return;
   }

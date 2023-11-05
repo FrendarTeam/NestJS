@@ -18,9 +18,19 @@ export const successResponseMessage = {
 
 export const errorResponseMessage = {
   /**
+   * Common
+   */
+  NULL_VALUE: 'Request Body에 필요한 값이 없습니다.',
+
+  /**
    * Auth
    */
   INVALID_TOKEN: '토큰이 유효하지 않습니다.',
   EXPIRED_TOKEN: '토큰이 만료되었습니다.',
   NEED_TO_AUTHENTICATION: '로그인이 필요합니다',
+
+  /**
+   * User
+   */
+  INVALID_IMAGE_FILE: '지원하지 않는 이미지 형식입니다.',
 };

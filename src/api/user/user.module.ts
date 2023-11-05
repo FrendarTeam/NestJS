@@ -6,6 +6,7 @@ import { UserRepository } from './repository/user.repository';
 import { AuthService } from '../auth/auth.service';
 import { AuthRepository } from '../auth/repository/auth.repository';
 import { RefreshTokenRepository } from '../auth/repository/refreshToken.repository';
+import { S3Service } from './s3/s3.service';
 
 @Module({
   imports: [
@@ -16,6 +17,6 @@ import { RefreshTokenRepository } from '../auth/repository/refreshToken.reposito
     ]),
   ],
   controllers: [UserController],
-  providers: [UserService, AuthService],
+  providers: [UserService, AuthService, S3Service],
 })
 export class UserModule {}

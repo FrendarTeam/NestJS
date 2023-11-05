@@ -17,7 +17,7 @@ export class AuthRepository extends Repository<Auth> {
 
   async findUserIdBySnsId(snsId: string): Promise<number> {
     const auth = await this.findOne({
-      select: { user: { id: true } },
+      select: { id: true, user: { id: true } },
       where: { snsId },
       relations: { user: true },
     });
