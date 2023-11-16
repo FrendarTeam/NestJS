@@ -11,9 +11,19 @@ export class FriendRepository extends Repository<Friend> {
     return;
   }
 
+  async getFriendById(id: number): Promise<Friend> {
+    return await this.findOne({
+      where: { id },
+    });
+  }
+
   async getFriends(userId: number): Promise<Friend[]> {
     return await this.find({
       where: [{ fromUserId: userId }, { toUserId: userId }],
     });
+  }
+
+  async deleteFriend(id: number): Promise<void> {
+    await this.softDelete({ id });
   }
 }

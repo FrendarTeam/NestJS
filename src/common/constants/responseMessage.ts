@@ -19,6 +19,7 @@ export const successResponseMessage = {
    * Friend
    */
   ADD_FRIEND_SUCCESS: '친구 추가 성공',
+  DELETE_FRIEND_SUCCESS: '친구 삭제 성공',
 };
 
 export const errorResponseMessage = {
@@ -44,4 +45,5 @@ export const errorResponseMessage = {
    */
   INVALID_FRIEND_CODE: '친구 코드가 유효하지 않습니다.',
   ALREADY_ADDED_FRIEND: '이미 추가한 친구입니다.',
+  CANT_FIND_FRIEND_ID: '해당 친구 ID가 존재하지 않습니다.',
 };

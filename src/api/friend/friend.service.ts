@@ -46,4 +46,22 @@ export class FriendService {
       throw error;
     }
   }
+
+  async deleteFriend(userId: number, id: number) {
+    try {
+      const friendData = await this.friendRepository.getFriendById(id);
+      if (
+        !friendData ||
+        (friendData.fromUserId !== userId && friendData.toUserId !== userId)
+      ) {
+        throw new NotFoundException(errorResponseMessage.CANT_FIND_FRIEND_ID);
+      }
+
+      await this.friendRepository.deleteFriend(id);
+
+      return;
+    } catch (error: any) {
+      throw error;
+    }
+  }
 }

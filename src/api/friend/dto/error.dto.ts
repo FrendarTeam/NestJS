@@ -11,3 +11,8 @@ export class AlreadyAddedFriendErrorDto extends ErrorDto {
   @ApiProperty({ example: errorResponseMessage.ALREADY_ADDED_FRIEND })
   message: string;
 }
+
+export class CantFindFriendIdErrorDto extends ErrorDto {
+  @ApiProperty({ example: errorResponseMessage.CANT_FIND_FRIEND_ID })
+  message: string;
+}
