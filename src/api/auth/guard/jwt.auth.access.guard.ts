@@ -13,8 +13,6 @@ export class JwtAuthAccessGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    console.log(request);
-    console.log(request.cookies);
     const accessToken = request.cookies.AccessToken;
 
     try {
