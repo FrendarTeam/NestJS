@@ -23,6 +23,13 @@ export class FriendRepository extends Repository<Friend> {
     });
   }
 
+  async getFriendsWithUserData(userId: number): Promise<Friend[]> {
+    return await this.find({
+      where: [{ fromUserId: userId }, { toUserId: userId }],
+      relations: { fromUser: true, toUser: true },
+    });
+  }
+
   async deleteFriend(id: number): Promise<void> {
     await this.softDelete({ id });
   }

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Post,
   Query,
   UseGuards,
@@ -20,6 +21,10 @@ import {
   InvalidFriendCodeErrorDto,
 } from './dto/error.dto';
 import { DeleteFriendResponseDto } from './dto/delete-friend.res.dto';
+import {
+  GetListOfFriendResponseDto,
+  GetListOfFriendResultDto,
+} from './dto/get-friend-list-res.dto';
 
 @Controller('friend')
 @ApiTags('Friend API')
@@ -55,6 +60,32 @@ export class FriendController {
       await this.friendService.addFriend(userId, addFriendRequestDto);
       const data = {
         message: successResponseMessage.ADD_FRIEND_SUCCESS,
+      };
+      return data;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  @Get()
+  @UseGuards(JwtAuthAccessGuard)
+  @ApiOperation({
+    summary: '친구 목록 조회 API',
+    description: `유저의 친구 목록을 조회한다.`,
+  })
+  @ApiResponse({
+    status: 200,
+    description: '친구 목록 조회 성공',
+    type: GetListOfFriendResponseDto,
+  })
+  async getListOfFriend(
+    @GetUserId() userId: number,
+  ): Promise<GetListOfFriendResultDto> {
+    try {
+      const friends = await this.friendService.getListOfFriend(userId);
+      const data = {
+        friends,
+        message: successResponseMessage.GET_LIST_OF_FRIEND_SUCCESS,
       };
       return data;
     } catch (error: any) {

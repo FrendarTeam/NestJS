@@ -19,6 +19,7 @@ export const successResponseMessage = {
    * Friend
    */
   ADD_FRIEND_SUCCESS: '친구 추가 성공',
+  GET_LIST_OF_FRIEND_SUCCESS: '친구 목록 조회 성공',
   DELETE_FRIEND_SUCCESS: '친구 삭제 성공',
 };
 

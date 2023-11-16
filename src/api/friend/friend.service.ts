@@ -7,6 +7,7 @@ import { FriendRepository } from './repository/friend.repository';
 import { AddFriendRequestDto } from './dto/add-friend-req.dto';
 import { UserRepository } from '../user/repository/user.repository';
 import { errorResponseMessage } from 'src/common/constants/responseMessage';
+import { UserInfoForFriendListDto } from './dto/get-friend-list-res.dto';
 
 @Injectable()
 export class FriendService {
@@ -47,6 +48,45 @@ export class FriendService {
     }
   }
 
+  async getListOfFriend(userId: number) {
+    try {
+      const existedFriendData =
+        await this.friendRepository.getFriendsWithUserData(userId);
+
+      const listOfFriend: UserInfoForFriendListDto[] = [];
+
+      existedFriendData.reduce((acc, cur) => {
+        if (cur.fromUserId !== userId) {
+          const profileUrl = this.completeProfileUrl(cur.fromUser.profileUrl);
+
+          acc.push({
+            id: cur.fromUser.id,
+            friendId: cur.id,
+            nickname: cur.fromUser.nickname,
+            profileUrl,
+          });
+        }
+
+        if (cur.toUserId !== userId) {
+          const profileUrl = this.completeProfileUrl(cur.toUser.profileUrl);
+
+          acc.push({
+            id: cur.toUser.id,
+            friendId: cur.id,
+            nickname: cur.toUser.nickname,
+            profileUrl,
+          });
+        }
+
+        return acc;
+      }, listOfFriend);
+
+      return listOfFriend;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
   async deleteFriend(userId: number, id: number) {
     try {
       const friendData = await this.friendRepository.getFriendById(id);
@@ -63,5 +103,17 @@ export class FriendService {
     } catch (error: any) {
       throw error;
     }
+  }
+
+  private completeProfileUrl(profileUrl: string) {
+    if (!profileUrl) {
+      profileUrl = process.env.AWS_S3_DEFAULT_KEY;
+    }
+
+    if (!profileUrl.includes('kakaocdn')) {
+      profileUrl = process.env.AWS_S3_URI + profileUrl;
+    }
+
+    return profileUrl;
   }
 }

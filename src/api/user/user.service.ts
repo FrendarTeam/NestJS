@@ -16,14 +16,7 @@ export class UserService {
     try {
       const userData = await this.userRepository.getUser(userId);
 
-      let profileUrl = userData.profileUrl;
-      if (!profileUrl) {
-        profileUrl = process.env.AWS_S3_DEFAULT_KEY;
-      }
-
-      if (!profileUrl.includes('kakaocdn')) {
-        profileUrl = process.env.AWS_S3_URI + profileUrl;
-      }
+      const profileUrl = this.completeProfileUrl(userData.profileUrl);
 
       const result = {
         id: userData.id,
@@ -81,14 +74,7 @@ export class UserService {
        */
       const userData = await this.userRepository.getUser(userId);
 
-      profileUrl = userData.profileUrl;
-      if (!profileUrl) {
-        profileUrl = process.env.AWS_S3_DEFAULT_KEY;
-      }
-
-      if (!profileUrl.includes('kakaocdn')) {
-        profileUrl = process.env.AWS_S3_URI + profileUrl;
-      }
+      profileUrl = this.completeProfileUrl(userData.profileUrl);
 
       const result = {
         id: userData.id,
@@ -130,5 +116,17 @@ export class UserService {
     } catch (error: any) {
       throw error;
     }
+  }
+
+  private completeProfileUrl(profileUrl: string) {
+    if (!profileUrl) {
+      profileUrl = process.env.AWS_S3_DEFAULT_KEY;
+    }
+
+    if (!profileUrl.includes('kakaocdn')) {
+      profileUrl = process.env.AWS_S3_URI + profileUrl;
+    }
+
+    return profileUrl;
   }
 }
