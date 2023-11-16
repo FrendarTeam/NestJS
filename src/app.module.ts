@@ -4,6 +4,7 @@ import { typeORMConfig } from './common/config/typeorm.config';
 import { AuthModule } from './api/auth/auth.module';
 import { UserModule } from './api/user/user.module';
 import { ConfigModule } from '@nestjs/config';
+import { FriendModule } from './api/friend/friend.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ConfigModule } from '@nestjs/config';
     TypeOrmModule.forRoot(typeORMConfig),
     AuthModule,
     UserModule,
+    FriendModule,
   ],
   controllers: [],
   providers: [],

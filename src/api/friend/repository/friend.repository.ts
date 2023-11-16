@@ -1,0 +1,19 @@
+import { CustomRepository } from 'src/common/decorators/typeorm_ex.decorator';
+import { Repository } from 'typeorm';
+import { Friend } from 'src/entities/Friend.entity';
+
+@CustomRepository(Friend)
+export class FriendRepository extends Repository<Friend> {
+  async addFriend(fromUserId: number, toUserId: number): Promise<void> {
+    const newFriend = this.create({ fromUserId, toUserId });
+
+    await this.save(newFriend);
+    return;
+  }
+
+  async getFriends(userId: number): Promise<Friend[]> {
+    return await this.find({
+      where: [{ fromUserId: userId }, { toUserId: userId }],
+    });
+  }
+}

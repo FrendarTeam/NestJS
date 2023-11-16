@@ -14,6 +14,11 @@ export const successResponseMessage = {
   NOTIFICATION_TOGGLE_ON_SUCCESS: '알림 허용',
   NOTIFICATION_TOGGLE_OFF_SUCCESS: '알림 거부',
   UPDATE_USER_THEME_SUCCESS: '메인 테마 변경 성공',
+
+  /**
+   * Friend
+   */
+  ADD_FRIEND_SUCCESS: '친구 추가 성공',
 };
 
 export const errorResponseMessage = {
@@ -33,4 +38,10 @@ export const errorResponseMessage = {
    * User
    */
   INVALID_IMAGE_FILE: '지원하지 않는 이미지 형식입니다.',
+
+  /**
+   * Friend
+   */
+  INVALID_FRIEND_CODE: '친구 코드가 유효하지 않습니다.',
+  ALREADY_ADDED_FRIEND: '이미 추가한 친구입니다.',
 };

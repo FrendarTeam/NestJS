@@ -49,6 +49,13 @@ export class UserRepository extends Repository<User> {
     return userData.isNotificationEnabled;
   }
 
+  async getUserByCode(code: string): Promise<User | null> {
+    return await this.findOne({
+      select: { id: true },
+      where: { code },
+    });
+  }
+
   async updateUserInfo(
     userId: number,
     nickname: string,

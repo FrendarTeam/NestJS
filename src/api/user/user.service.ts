@@ -4,7 +4,6 @@ import { UpdateUserThemeRequestDto } from './dto/theme-req.dto';
 import { UpdateUserInfoRequestDto } from './dto/update-user-req.dto';
 import { S3Service } from './s3/s3.service';
 import { errorResponseMessage } from 'src/common/constants/responseMessage';
-import { DataSource } from 'typeorm';
 
 @Injectable()
 export class UserService {
