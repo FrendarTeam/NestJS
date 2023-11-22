@@ -3,9 +3,9 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  Index,
   JoinColumn,
   ManyToOne,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Task } from './Task.entity';
@@ -13,7 +13,7 @@ import { User } from './User.entity';
 
 @Entity('UserTask', { schema: 'frendar_dev' })
 export class UserTask {
-  @Column('int', { primary: true, name: 'id' })
+  @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
   @Column('int', { name: 'taskId' })
@@ -22,11 +22,11 @@ export class UserTask {
   @Column('int', { name: 'userId' })
   userId: number;
 
-  @Column('varchar', { name: 'color', nullable: true, length: 45 })
-  color: string | null;
+  @Column('varchar', { name: 'color', length: 45 })
+  color: string;
 
-  @Column('tinyint', { name: 'isPrivate', nullable: true })
-  isPrivate: number | null;
+  @Column('boolean', { name: 'isPrivate' })
+  isPrivate: boolean;
 
   @CreateDateColumn()
   createdAt: Date;

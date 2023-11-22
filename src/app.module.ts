@@ -5,6 +5,7 @@ import { AuthModule } from './api/auth/auth.module';
 import { UserModule } from './api/user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { FriendModule } from './api/friend/friend.module';
+import { TaskModule } from './api/task/task.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { FriendModule } from './api/friend/friend.module';
     AuthModule,
     UserModule,
     FriendModule,
+    TaskModule,
   ],
   controllers: [],
   providers: [],

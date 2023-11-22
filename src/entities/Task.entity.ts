@@ -3,7 +3,6 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -18,17 +17,17 @@ export class Task {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
-  @Column('varchar', { name: 'title', nullable: true, length: 64 })
-  title: string | null;
+  @Column('varchar', { name: 'title', length: 64 })
+  title: string;
 
-  @Column('varchar', { name: 'location', nullable: true, length: 255 })
-  location: string | null;
+  @Column('varchar', { name: 'location', length: 255 })
+  location: string;
 
   @Column('datetime', { name: 'startTime', nullable: true })
-  startTime: Date | null;
+  startTime: Date;
 
   @Column('datetime', { name: 'endTime', nullable: true })
-  endTime: Date | null;
+  endTime: Date;
 
   @CreateDateColumn()
   createdAt: Date;

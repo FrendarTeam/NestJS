@@ -90,6 +90,7 @@ export class FriendService {
   async deleteFriend(userId: number, id: number) {
     try {
       const friendData = await this.friendRepository.getFriendById(id);
+
       if (
         !friendData ||
         (friendData.fromUserId !== userId && friendData.toUserId !== userId)

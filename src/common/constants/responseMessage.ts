@@ -21,6 +21,12 @@ export const successResponseMessage = {
   ADD_FRIEND_SUCCESS: '친구 추가 성공',
   GET_LIST_OF_FRIEND_SUCCESS: '친구 목록 조회 성공',
   DELETE_FRIEND_SUCCESS: '친구 삭제 성공',
+
+  /**
+   * Task
+   */
+  ADD_TASK_SUCCESS: '일정 추가 성공',
+  DELETE_TASK_SUCCESS: '일정 삭제 성공',
 };
 
 export const errorResponseMessage = {
@@ -47,4 +53,10 @@ export const errorResponseMessage = {
   INVALID_FRIEND_CODE: '친구 코드가 유효하지 않습니다.',
   ALREADY_ADDED_FRIEND: '이미 추가한 친구입니다.',
   CANT_FIND_FRIEND_ID: '해당 친구 ID가 존재하지 않습니다.',
+
+  /**
+   * Task
+   */
+  INVALID_DATE_ERROR: '일정의 시작시각이 종료시각보다 늦을 수 없습니다.',
+  CANT_FIND_TASK_ID: '해당 일정 ID가 존재하지 않습니다.',
 };
