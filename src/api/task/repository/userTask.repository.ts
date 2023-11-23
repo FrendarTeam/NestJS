@@ -1,5 +1,5 @@
 import { CustomRepository } from 'src/common/decorators/typeorm_ex.decorator';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UserTask } from 'src/entities/UserTask.entity';
 import { UserTaskValueDto } from '../dto/add-task-res.dto';
 
@@ -12,11 +12,31 @@ export class UserTaskRepository extends Repository<UserTask> {
     return;
   }
 
+  async updateUserTaskByIdAndUserId(
+    id: number,
+    userId: number,
+    color: string,
+    isPrivate: boolean,
+  ): Promise<void> {
+    await this.update({ taskId: id, userId }, { color, isPrivate });
+    return;
+  }
+
   async deleteUserTasks(id: number): Promise<void> {
     await this.softDelete({ taskId: id });
+    return;
+  }
+
+  async deleteUserTasksBytaskIdAndUserIds(
+    taskId: number,
+    userIds: number[],
+  ): Promise<void> {
+    await this.softDelete({ taskId, userId: In(userIds) });
+    return;
   }
 
   async deleteUserTask(id: number, userId: number): Promise<void> {
     await this.softDelete({ taskId: id, userId });
+    return;
   }
 }

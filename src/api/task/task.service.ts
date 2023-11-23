@@ -10,6 +10,9 @@ import { errorResponseMessage } from 'src/common/constants/responseMessage';
 import { DataSource } from 'typeorm';
 import { FriendRepository } from '../friend/repository/friend.repository';
 import { UserTaskValueDto } from './dto/add-task-res.dto';
+import { UpdateTaskRequestDto } from './dto/update-task-req.dto';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { Task } from 'src/entities/Task.entity';
 
 @Injectable()
 export class TaskService {
@@ -94,6 +97,151 @@ export class TaskService {
     }
   }
 
+  async updateTask(userId: number, updateTaskRequestDto: UpdateTaskRequestDto) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const {
+        id,
+        title,
+        location,
+        startTime,
+        endTime,
+        friendIds,
+        color,
+        isPrivate,
+      } = updateTaskRequestDto;
+
+      const taskData =
+        await this.taskRepository.getTaskWithUserTaskDataById(id);
+
+      const existedUserIds: number[] = [];
+      taskData?.userTasks.map((o) => {
+        existedUserIds.push(o.userId);
+      });
+
+      if (!taskData || !existedUserIds.includes(userId)) {
+        throw new NotFoundException(errorResponseMessage.CANT_FIND_TASK_ID);
+      }
+
+      /**
+       * <일정의 host가 user인지 아닌지에 따라 로직 분기처리>
+       *  - host일 경우: Task 테이블과 유저 개별 UserTask 테이블의 data update
+       *    (참석자가 변경된 경우 UserTask 테이블에 추가하거나 soft delete)
+       *  - host가 아닐 경우: UserTask 테이블에서 userId, taskId가 일치하는 data update
+       */
+      if (taskData.userId === userId) {
+        if (!title || !location || !startTime || !endTime || !friendIds) {
+          throw new BadRequestException(errorResponseMessage.NULL_VALUE);
+        }
+
+        const startTimeForValidation = startTime
+          ? startTime
+          : taskData.startTime;
+        const endTimeForValidation = endTime ? endTime : taskData.endTime;
+
+        if (startTimeForValidation > endTimeForValidation) {
+          throw new BadRequestException(
+            errorResponseMessage.INVALID_DATE_ERROR,
+          );
+        }
+
+        const updateTaskColumn: QueryDeepPartialEntity<Task> = {};
+        if (taskData.title !== title) {
+          updateTaskColumn.title = title;
+        }
+
+        if (taskData.location !== location) {
+          updateTaskColumn.location = location;
+        }
+
+        if (
+          taskData.startTime.toLocaleString() !==
+          new Date(startTime).toLocaleString()
+        ) {
+          updateTaskColumn.startTime = startTime;
+        }
+
+        if (
+          taskData.endTime.toLocaleString() !==
+          new Date(endTime).toLocaleString()
+        ) {
+          updateTaskColumn.endTime = endTime;
+        }
+
+        // 변경된 column만 업데이트
+        await queryRunner.manager
+          .withRepository(this.taskRepository)
+          .updateTaskById(id, updateTaskColumn);
+
+        // friendIds에 연결된 userIds 조회
+        const existedFriendData =
+          await this.friendRepository.getFriendsByIds(friendIds);
+
+        const userIdsOfFriends: number[] = [];
+        existedFriendData.map((o) => {
+          if (o.fromUserId !== userId) {
+            userIdsOfFriends.push(o.fromUserId);
+          }
+
+          if (o.toUserId !== userId) {
+            userIdsOfFriends.push(o.toUserId);
+          }
+        });
+
+        if (userIdsOfFriends.length !== friendIds.length) {
+          throw new NotFoundException(errorResponseMessage.CANT_FIND_FRIEND_ID);
+        }
+
+        // existedUserIds 기준으로 userIdsOfFriends의 데이터와 동일하지 않으면 soft delete
+        const deleteUserIds: number[] = existedUserIds.filter(
+          (x) => !userIdsOfFriends.includes(x) && x !== userId,
+        );
+
+        if (deleteUserIds.length) {
+          await queryRunner.manager
+            .withRepository(this.userTaskRepository)
+            .deleteUserTasksBytaskIdAndUserIds(id, deleteUserIds);
+        }
+
+        // userIdsOfFriends 기준으로 existedUserIds의 데이터와 동일하지 않으면 UserTask 추가
+        const newUserIds: number[] = userIdsOfFriends.filter(
+          (x) => !existedUserIds.includes(x),
+        );
+
+        if (newUserIds.length) {
+          const values: UserTaskValueDto[] = [];
+          newUserIds.reduce((acc, cur) => {
+            acc.push({
+              taskId: id,
+              userId: cur,
+              color,
+              isPrivate,
+            });
+            return acc;
+          }, values);
+
+          await queryRunner.manager
+            .withRepository(this.userTaskRepository)
+            .addUserTasks(values);
+        }
+      }
+
+      await queryRunner.manager
+        .withRepository(this.userTaskRepository)
+        .updateUserTaskByIdAndUserId(id, userId, color, isPrivate);
+
+      await queryRunner.commitTransaction();
+      return;
+    } catch (error: any) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
   async deleteTask(userId: number, id: number) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -103,7 +251,7 @@ export class TaskService {
         await this.taskRepository.getTaskWithUserTaskDataById(id);
 
       const userIds: number[] = [];
-      taskData.userTasks.map((o) => {
+      taskData?.userTasks.map((o) => {
         userIds.push(o.userId);
       });
 

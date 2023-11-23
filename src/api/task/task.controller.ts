@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -12,7 +13,10 @@ import { JwtAuthAccessGuard } from '../auth/guard/jwt.auth.access.guard';
 import { AddTaskResponseDto } from './dto/add-task-res.dto';
 import { GetUserId } from 'src/common/decorators/get.userId.decorator';
 import { AddTaskRequestDto } from './dto/add-task-req.dto';
-import { ResultWithoutDataDto } from 'src/common/constants/response.dto';
+import {
+  NullValueErrorDto,
+  ResultWithoutDataDto,
+} from 'src/common/constants/response.dto';
 import { successResponseMessage } from 'src/common/constants/responseMessage';
 import { DeleteTaskResponseDto } from './dto/delete-task-res.dto';
 import {
@@ -20,6 +24,8 @@ import {
   CantFindTaskIdErrorDto,
   InvalidDateErrorDto,
 } from './dto/error.dto';
+import { UpdateTaskResponseDto } from './dto/update-task-res.dto';
+import { UpdateTaskRequestDto } from './dto/update-task-req.dto';
 
 @Controller('task')
 @ApiTags('Task API')
@@ -59,6 +65,56 @@ export class TaskController {
       await this.taskService.addTask(userId, addTaskRequestDto);
       const data = {
         message: successResponseMessage.ADD_TASK_SUCCESS,
+      };
+      return data;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  @Put()
+  @UseGuards(JwtAuthAccessGuard)
+  @ApiOperation({
+    summary: '일정 수정 API',
+    description: `일정의 id, 제목, 장소, 참석자, 시작시각, 종료시각, 색깔, 공개여부를 받아서 일정을 수정한다.
+    <br> 호스트인 user는 모든 값이 필수값. 그 외의 user는 색깔과 공개여부만 필수값.
+    <br> 호스트인 user만 제목, 장소, 참석자, 시작시각, 종료시각을 수정할 수 있음.
+    <br> 색깔과 공개여부는 같은 task라도 유저마다 다르게 수정 가능. 모든 user가 수정할 수 있음.`,
+  })
+  @ApiResponse({
+    status: 200,
+    description: '일정 수정 성공',
+    type: UpdateTaskResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Request Body에 필요한 값이 없습니다.',
+    type: NullValueErrorDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description:
+      '일정의 시작시각이 종료시각보다 늦을 수 없습니다. 실제코드 400.',
+    type: InvalidDateErrorDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 일정 ID가 존재하지 않습니다.',
+    type: CantFindTaskIdErrorDto,
+  })
+  @ApiResponse({
+    status: 405,
+    description: '해당 친구 ID가 존재하지 않습니다. 실제코드 404.',
+    type: CantFindFriendIdErrorDto,
+  })
+  async updateTask(
+    @GetUserId() userId: number,
+    @Body() updateTaskRequestDto: UpdateTaskRequestDto,
+  ): Promise<ResultWithoutDataDto> {
+    try {
+      await this.taskService.updateTask(userId, updateTaskRequestDto);
+      const data = {
+        message: successResponseMessage.UPDATE_TASK_SUCCESS,
       };
       return data;
     } catch (error: any) {

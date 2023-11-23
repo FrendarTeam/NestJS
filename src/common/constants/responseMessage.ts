@@ -26,6 +26,7 @@ export const successResponseMessage = {
    * Task
    */
   ADD_TASK_SUCCESS: '일정 추가 성공',
+  UPDATE_TASK_SUCCESS: '일정 수정 성공',
   DELETE_TASK_SUCCESS: '일정 삭제 성공',
 };
 
