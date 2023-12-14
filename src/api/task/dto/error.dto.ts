@@ -7,11 +7,6 @@ export class InvalidDateErrorDto extends ErrorDto {
   message: string;
 }
 
-export class CantFindFriendIdErrorDto extends ErrorDto {
-  @ApiProperty({ example: errorResponseMessage.CANT_FIND_FRIEND_ID })
-  message: string;
-}
-
 export class CantFindTaskIdErrorDto extends ErrorDto {
   @ApiProperty({ example: errorResponseMessage.CANT_FIND_TASK_ID })
   message: string;

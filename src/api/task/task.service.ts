@@ -34,7 +34,7 @@ export class TaskService {
         location,
         startTime,
         endTime,
-        friendIds,
+        participants,
         color,
         isPrivate,
       } = addTaskRequestDto;
@@ -48,12 +48,12 @@ export class TaskService {
         .withRepository(this.taskRepository)
         .addTask(userId, title, location, startTime, endTime);
 
-      // request body로 들어온 friendIds 배열에 값이 있으면 Friend 테이블에서 해당 ids로 조회
-      // 조회한 data에서 userId를 모아서 userIdsOfFriends 배열에 담고 friendIds 배열의 길이롸 비교하여 error throw
+      // request body로 들어온 participants 배열에 값이 있으면 Friend 테이블에서 호스트인 userId로 조회
+      // 조회한 data에서 친구관계인 userId를 모아서 userIdsOfFriends 배열에 담고 participants 배열의 원소와 비교하여 error throw
       const userIdsOfFriends: number[] = [];
-      if (friendIds.length) {
+      if (participants.length) {
         const existedFriendData =
-          await this.friendRepository.getFriendsByIds(friendIds);
+          await this.friendRepository.getFriends(userId);
 
         existedFriendData.map((o) => {
           if (o.fromUserId !== userId) {
@@ -65,9 +65,11 @@ export class TaskService {
           }
         });
 
-        if (userIdsOfFriends.length !== friendIds.length) {
-          throw new NotFoundException(errorResponseMessage.CANT_FIND_FRIEND_ID);
-        }
+        participants.map((o) => {
+          if (!userIdsOfFriends.includes(o)) {
+            throw new NotFoundException(errorResponseMessage.CANT_FIND_USER_ID);
+          }
+        });
       }
 
       // userIdsOfFriends 배열에 task의 host인 userId도 담고
@@ -149,7 +151,7 @@ export class TaskService {
         location,
         startTime,
         endTime,
-        friendIds,
+        participants,
         color,
         isPrivate,
       } = updateTaskRequestDto;
@@ -173,7 +175,7 @@ export class TaskService {
        *  - host가 아닐 경우: UserTask 테이블에서 userId, taskId가 일치하는 data update
        */
       if (taskData.userId === userId) {
-        if (!title || !location || !startTime || !endTime || !friendIds) {
+        if (!title || !location || !startTime || !endTime || !participants) {
           throw new BadRequestException(errorResponseMessage.NULL_VALUE);
         }
 
@@ -216,9 +218,9 @@ export class TaskService {
           .withRepository(this.taskRepository)
           .updateTaskById(id, updateTaskColumn);
 
-        // friendIds에 연결된 userIds 조회
+        // participants에 연결된 userIds 조회
         const existedFriendData =
-          await this.friendRepository.getFriendsByIds(friendIds);
+          await this.friendRepository.getFriends(userId);
 
         const userIdsOfFriends: number[] = [];
         existedFriendData.map((o) => {
@@ -231,13 +233,15 @@ export class TaskService {
           }
         });
 
-        if (userIdsOfFriends.length !== friendIds.length) {
-          throw new NotFoundException(errorResponseMessage.CANT_FIND_FRIEND_ID);
-        }
+        participants.map((o) => {
+          if (!userIdsOfFriends.includes(o)) {
+            throw new NotFoundException(errorResponseMessage.CANT_FIND_USER_ID);
+          }
+        });
 
-        // existedUserIds 기준으로 userIdsOfFriends의 데이터와 동일하지 않으면 soft delete
+        // existedUserIds 기준으로 participants의 데이터와 동일하지 않으면 soft delete
         const deleteUserIds: number[] = existedUserIds.filter(
-          (x) => !userIdsOfFriends.includes(x) && x !== userId,
+          (x) => !participants.includes(x) && x !== userId,
         );
 
         if (deleteUserIds.length) {
@@ -246,8 +250,8 @@ export class TaskService {
             .deleteUserTasksBytaskIdAndUserIds(id, deleteUserIds);
         }
 
-        // userIdsOfFriends 기준으로 existedUserIds의 데이터와 동일하지 않으면 UserTask 추가
-        const newUserIds: number[] = userIdsOfFriends.filter(
+        // participants 기준으로 existedUserIds의 데이터와 동일하지 않으면 UserTask 추가
+        const newUserIds: number[] = participants.filter(
           (x) => !existedUserIds.includes(x),
         );
 

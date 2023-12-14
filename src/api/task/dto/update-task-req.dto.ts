@@ -55,11 +55,11 @@ export class UpdateTaskRequestDto {
 
   @ApiProperty({
     example: '[1,5]',
-    description: '일정의 참석자들의 friendId를 담은 배열',
+    description: '일정의 참석자들의 userId를 담은 배열',
   })
   @IsOptional()
   @IsArray()
-  friendIds: number[];
+  participants: number[];
 
   @ApiProperty({
     example: 'yellow',

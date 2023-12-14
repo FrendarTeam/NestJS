@@ -21,7 +21,6 @@ import {
 import { successResponseMessage } from 'src/common/constants/responseMessage';
 import { DeleteTaskResponseDto } from './dto/delete-task-res.dto';
 import {
-  CantFindFriendIdErrorDto,
   CantFindTaskIdErrorDto,
   InvalidDateErrorDto,
   CantFindUserIdErrorDto,
@@ -44,7 +43,7 @@ export class TaskController {
     summary: '일정 추가 API',
     description: `일정의 제목, 장소, 참석자, 시작시각, 종료시각, 색깔, 공개여부를 받아서 캘린더에 등록한다.
     <br> 모든 값은 필수값.
-    <br> 참석자는 friendId를 담은 배열의 형태. 개인 일정이라면 빈 배열로 보낼 것. 일정을 추가한 유저가 일정의 호스트가 됨.
+    <br> 참석자는 userId를 담은 배열의 형태. 개인 일정이라면 빈 배열로 보낼 것. 일정을 추가한 유저가 일정의 호스트가 됨.
     <br> 시작시각과 종료시각의 형태는 date.toISOString()의 형태인 2023-11-22T22:30:00로 보낼 것.
     <br> 공개여부는 boolean type.`,
   })
@@ -60,8 +59,8 @@ export class TaskController {
   })
   @ApiResponse({
     status: 404,
-    description: '해당 친구 ID가 존재하지 않습니다.',
-    type: CantFindFriendIdErrorDto,
+    description: '해당 유저 ID가 존재하지 않습니다.',
+    type: CantFindUserIdErrorDto,
   })
   async addTask(
     @GetUserId() userId: number,
@@ -146,9 +145,9 @@ export class TaskController {
     type: CantFindTaskIdErrorDto,
   })
   @ApiResponse({
-    status: 405,
-    description: '해당 친구 ID가 존재하지 않습니다. 실제코드 404.',
-    type: CantFindFriendIdErrorDto,
+    status: 414,
+    description: '해당 유저 ID가 존재하지 않습니다. 실제 코드 404',
+    type: CantFindUserIdErrorDto,
   })
   async updateTask(
     @GetUserId() userId: number,

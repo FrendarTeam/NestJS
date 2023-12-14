@@ -1,5 +1,5 @@
 import { CustomRepository } from 'src/common/decorators/typeorm_ex.decorator';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Friend } from 'src/entities/Friend.entity';
 
 @CustomRepository(Friend)
@@ -14,12 +14,6 @@ export class FriendRepository extends Repository<Friend> {
   async getFriendById(id: number): Promise<Friend> {
     return await this.findOne({
       where: { id },
-    });
-  }
-
-  async getFriendsByIds(ids: number[]): Promise<Friend[]> {
-    return await this.find({
-      where: { id: In(ids) },
     });
   }
 
