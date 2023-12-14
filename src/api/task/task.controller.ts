@@ -4,6 +4,7 @@ import {
   Delete,
   Post,
   Put,
+  Get,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -23,9 +24,14 @@ import {
   CantFindFriendIdErrorDto,
   CantFindTaskIdErrorDto,
   InvalidDateErrorDto,
+  CantFindUserIdErrorDto,
 } from './dto/error.dto';
 import { UpdateTaskResponseDto } from './dto/update-task-res.dto';
 import { UpdateTaskRequestDto } from './dto/update-task-req.dto';
+import {
+  GetTaskDetailResponseDto,
+  GetTaskDetailResultDto,
+} from './dto/get-task-detail-res.dto';
 
 @Controller('task')
 @ApiTags('Task API')
@@ -65,6 +71,43 @@ export class TaskController {
       await this.taskService.addTask(userId, addTaskRequestDto);
       const data = {
         message: successResponseMessage.ADD_TASK_SUCCESS,
+      };
+      return data;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  @Get('detail')
+  @UseGuards(JwtAuthAccessGuard)
+  @ApiOperation({
+    summary: '상세 일정 조회 API',
+    description: `task id와 user id에 해당하는 일정의 상세내용을 조회한다. query param으로 입력하는 userId는 접속자가 아닌 조회하고자 하는 일정의 userId.`,
+  })
+  @ApiResponse({
+    status: 200,
+    description: '상세 일정 조회 성공',
+    type: GetTaskDetailResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: '해당 유저 ID가 존재하지 않습니다.',
+    type: CantFindUserIdErrorDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 일정 ID가 존재하지 않습니다.',
+    type: CantFindTaskIdErrorDto,
+  })
+  async getTaskDetail(
+    @Query('id') id: number,
+    @Query('userId') userId: number,
+  ): Promise<GetTaskDetailResultDto> {
+    try {
+      const task = await this.taskService.getTaskDetail(id, userId);
+      const data = {
+        task,
+        message: successResponseMessage.GET_TASK_DETAIL_SUCCESS,
       };
       return data;
     } catch (error: any) {

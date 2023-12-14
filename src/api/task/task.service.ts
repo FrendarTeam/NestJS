@@ -13,6 +13,7 @@ import { UserTaskValueDto } from './dto/add-task-res.dto';
 import { UpdateTaskRequestDto } from './dto/update-task-req.dto';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { Task } from 'src/entities/Task.entity';
+import { TaskDetailDto } from './dto/get-task-detail-res.dto';
 
 @Injectable()
 export class TaskService {
@@ -94,6 +95,46 @@ export class TaskService {
       throw error;
     } finally {
       await queryRunner.release();
+    }
+  }
+
+  async getTaskDetail(id: number, userId: number) {
+    try {
+      const taskData =
+        await this.taskRepository.getTaskWithUserTaskDataById(id);
+
+      if (!taskData) {
+        throw new NotFoundException(errorResponseMessage.CANT_FIND_TASK_ID);
+      }
+
+      const task: TaskDetailDto = {
+        id: taskData.id,
+        title: taskData.title,
+        location: taskData.location,
+        startTime: taskData.startTime,
+        endTime: taskData.endTime,
+        hostId: taskData.userId,
+        participants: [],
+        color: null,
+        isPrivate: null,
+      };
+
+      taskData.userTasks.map((o) => {
+        task.participants.push({ userId: o.userId, nickname: o.user.nickname });
+
+        if (userId === o.userId) {
+          task.color = o.color;
+          task.isPrivate = o.isPrivate;
+        }
+      });
+
+      if (task.color === null) {
+        throw new BadRequestException(errorResponseMessage.CANT_FIND_USER_ID);
+      }
+
+      return task;
+    } catch (error: any) {
+      throw error;
     }
   }
 

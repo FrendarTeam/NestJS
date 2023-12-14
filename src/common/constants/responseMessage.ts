@@ -26,6 +26,7 @@ export const successResponseMessage = {
    * Task
    */
   ADD_TASK_SUCCESS: '일정 추가 성공',
+  GET_TASK_DETAIL_SUCCESS: '상세 일정 조회 성공',
   UPDATE_TASK_SUCCESS: '일정 수정 성공',
   DELETE_TASK_SUCCESS: '일정 삭제 성공',
 };
@@ -60,4 +61,5 @@ export const errorResponseMessage = {
    */
   INVALID_DATE_ERROR: '일정의 시작시각이 종료시각보다 늦을 수 없습니다.',
   CANT_FIND_TASK_ID: '해당 일정 ID가 존재하지 않습니다.',
+  CANT_FIND_USER_ID: '해당 유저 ID가 존재하지 않습니다.',
 };

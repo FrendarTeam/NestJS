@@ -27,7 +27,7 @@ export class TaskRepository extends Repository<Task> {
   async getTaskWithUserTaskDataById(id: number): Promise<Task> {
     return await this.findOne({
       where: { id },
-      relations: { userTasks: true },
+      relations: { userTasks: { user: true } },
     });
   }
 

@@ -16,3 +16,8 @@ export class CantFindTaskIdErrorDto extends ErrorDto {
   @ApiProperty({ example: errorResponseMessage.CANT_FIND_TASK_ID })
   message: string;
 }
+
+export class CantFindUserIdErrorDto extends ErrorDto {
+  @ApiProperty({ example: errorResponseMessage.CANT_FIND_USER_ID })
+  message: string;
+}
