@@ -14,6 +14,7 @@ import { UpdateTaskRequestDto } from './dto/update-task-req.dto';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { Task } from 'src/entities/Task.entity';
 import { TaskDetailDto } from './dto/get-task-detail-res.dto';
+import { TaskDetailForDateDto } from './dto/get-task-date-res.dto';
 
 @Injectable()
 export class TaskService {
@@ -133,6 +134,36 @@ export class TaskService {
       if (task.color === null) {
         throw new BadRequestException(errorResponseMessage.CANT_FIND_USER_ID);
       }
+
+      return task;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  async getTaskDate(startTime: Date, endTime: Date, userId: number) {
+    try {
+      const taskData =
+        await this.taskRepository.getTasksWithUserTaskDataByDateAndUserId(
+          startTime,
+          endTime,
+          userId,
+        );
+
+      const task: TaskDetailForDateDto[] = [];
+      taskData.reduce((acc, cur) => {
+        acc.push({
+          id: cur.id,
+          title: cur.title,
+          location: cur.location,
+          startTime: cur.startTime,
+          endTime: cur.endTime,
+          hostId: cur.userId,
+          color: cur.userTasks[0].color,
+          isPrivate: cur.userTasks[0].isPrivate,
+        });
+        return acc;
+      }, task);
 
       return task;
     } catch (error: any) {

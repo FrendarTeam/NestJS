@@ -31,6 +31,10 @@ import {
   GetTaskDetailResponseDto,
   GetTaskDetailResultDto,
 } from './dto/get-task-detail-res.dto';
+import {
+  GetTaskDateResponseDto,
+  GetTaskDateResultDto,
+} from './dto/get-task-date-res.dto';
 
 @Controller('task')
 @ApiTags('Task API')
@@ -107,6 +111,39 @@ export class TaskController {
       const data = {
         task,
         message: successResponseMessage.GET_TASK_DETAIL_SUCCESS,
+      };
+      return data;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  @Get('date')
+  @UseGuards(JwtAuthAccessGuard)
+  @ApiOperation({
+    summary: '유저 전체 일정 조회 API',
+    description: `startTime과 endTime에 해당하는 유저 전체 일정을 조회한다. query param으로 입력하는 userId는 접속자가 아닌 조회하고자 하는 일정의 userId.
+    <br> 시작시각과 종료시각의 형태는 date.toISOString()의 형태인 2023-11-22T22:30:00로 보낼 것.`,
+  })
+  @ApiResponse({
+    status: 200,
+    description: '유저 전체 일정 조회 성공',
+    type: GetTaskDateResponseDto,
+  })
+  async getTaskDate(
+    @Query('startTime') startTime: Date,
+    @Query('endTime') endTime: Date,
+    @Query('userId') userId: number,
+  ): Promise<GetTaskDateResultDto> {
+    try {
+      const task = await this.taskService.getTaskDate(
+        startTime,
+        endTime,
+        userId,
+      );
+      const data = {
+        task,
+        message: successResponseMessage.GET_TASK_DATE_SUCCESS,
       };
       return data;
     } catch (error: any) {

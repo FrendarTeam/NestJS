@@ -27,6 +27,7 @@ export const successResponseMessage = {
    */
   ADD_TASK_SUCCESS: '일정 추가 성공',
   GET_TASK_DETAIL_SUCCESS: '상세 일정 조회 성공',
+  GET_TASK_DATE_SUCCESS: '유저 전체 일정 조회 성공',
   UPDATE_TASK_SUCCESS: '일정 수정 성공',
   DELETE_TASK_SUCCESS: '일정 삭제 성공',
 };
