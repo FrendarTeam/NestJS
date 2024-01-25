@@ -13,6 +13,12 @@ export class ParticipantDetailDto {
 
   @ApiProperty({ example: 'sumin', description: '유저의 닉네임' })
   nickname: string;
+
+  @ApiProperty({
+    example: 'https://www.profileUrl.com',
+    description: '유저의 프로필 url',
+  })
+  profileUrl: string;
 }
 
 export class TaskDetailDto {

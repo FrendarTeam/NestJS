@@ -123,7 +123,12 @@ export class TaskService {
       };
 
       taskData.userTasks.map((o) => {
-        task.participants.push({ userId: o.userId, nickname: o.user.nickname });
+        const profileUrl = this.completeProfileUrl(o.user.profileUrl);
+        task.participants.push({
+          userId: o.userId,
+          nickname: o.user.nickname,
+          profileUrl,
+        });
 
         if (userId === o.userId) {
           task.color = o.color;
@@ -363,5 +368,17 @@ export class TaskService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  private completeProfileUrl(profileUrl: string) {
+    if (!profileUrl) {
+      profileUrl = process.env.AWS_S3_DEFAULT_KEY;
+    }
+
+    if (!profileUrl.includes('kakaocdn')) {
+      profileUrl = process.env.AWS_S3_URI + profileUrl;
+    }
+
+    return profileUrl;
   }
 }
