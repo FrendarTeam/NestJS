@@ -10,7 +10,7 @@ async function bootstrap() {
   const port = process.env.PORT || 5000;
 
   app.enableCors({
-    origin: true,
+    origin: 'https://frendarteam.github.io',
     credentials: true,
   });
 
